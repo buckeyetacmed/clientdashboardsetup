@@ -107,6 +107,31 @@ body{background:var(--navy);color:var(--white);font-family:'Barlow',sans-serif;f
   .dash-grid{grid-template-columns:1fr;}
   .dashboard{padding:16px;}
 }
+
+.exp-badge{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.05em;padding:2px 7px;border-radius:3px;margin-left:6px;vertical-align:middle;}
+.exp-badge.expired{background:rgba(192,57,43,0.25);color:#e74c3c;}
+.exp-badge.soon{background:rgba(183,119,13,0.25);color:var(--gold2);}
+.exp-panel{background:var(--navy2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:24px;}
+.exp-panel-header{padding:14px 18px;border-bottom:1px solid var(--border);}
+.exp-panel-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--white);}
+.exp-panel-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.exp-row{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.exp-row:last-child{border-bottom:none;}
+.exp-row.expired{background:rgba(192,57,43,0.06);}
+.exp-row.soon{background:rgba(183,119,13,0.05);}
+.exp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.exp-dot.expired{background:#e74c3c;}
+.exp-dot.soon{background:var(--gold2);}
+.exp-info{flex:1;}
+.exp-loc-name{font-size:13px;color:var(--white);}
+.exp-item-name{font-size:11px;color:var(--muted);margin-top:2px;}
+.exp-date-col{text-align:right;flex-shrink:0;}
+.exp-date-val{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;}
+.exp-date-val.expired{color:#e74c3c;}
+.exp-date-val.soon{color:var(--gold2);}
+.exp-days-left{font-size:10px;margin-top:2px;}
+.exp-days-left.expired{color:#e74c3c;}
+.exp-days-left.soon{color:var(--gold2);}
 </style>
 </head>
 <body>
@@ -254,6 +279,15 @@ body{background:var(--navy);color:var(--white);font-family:'Barlow',sans-serif;f
 
     </div>
 
+    <!-- EXPIRY PANEL -->
+    <div class="exp-panel" id="expPanel" style="display:none;">
+      <div class="exp-panel-header">
+        <div class="exp-panel-title">&#x26A0; Expiring Items</div>
+        <div class="exp-panel-sub">Items expiring within 30 days or already expired</div>
+      </div>
+      <div id="expBody"></div>
+    </div>
+
     <!-- RECENT ACTIVITY -->
     <div class="section-card">
       <div class="section-card-header">
@@ -273,6 +307,7 @@ body{background:var(--navy);color:var(--white);font-family:'Barlow',sans-serif;f
 
 <script>
 var OVERDUE_DAYS = 60;
+var EXP_WARN_DAYS = 30;
 var config = {};
 var allActivity = [];
 
@@ -341,6 +376,7 @@ function reconfigure() {
 
 function loadAllData() {
   allActivity = [];
+  allExpiringItems = [];
   document.getElementById("lastUpdated").textContent = "Refreshing...";
   var pending = 0;
 
@@ -419,6 +455,7 @@ function dotClass(status) {
 // Store history per location
 var kitHistory = {};
 var eyewashHistory = {};
+var allExpiringItems = [];
 
 // Process Kit Inventory rows
 // Columns: Date | Location | Inspector | Kit Class | Result | Failed Items | Expiring | Notes | Photos
@@ -427,7 +464,7 @@ function processKit(rows) {
   rows.forEach(function(r) {
     var loc = r[1] || "Unknown";
     if (!kitHistory[loc]) kitHistory[loc] = [];
-    kitHistory[loc].push({date:r[0]||"", inspector:r[2]||"", kitClass:r[3]||"", result:r[4]||"", failed:r[5]||""});
+    kitHistory[loc].push({date:r[0]||"", inspector:r[2]||"", kitClass:r[3]||"", result:r[4]||"", failed:r[5]||"", expiring:r[6]||""});
   });
 
   // Sort each location by date desc
@@ -453,6 +490,13 @@ function processKit(rows) {
     row.addEventListener("click", function(){ openHistory(loc, "kit"); });
     body.appendChild(row);
     allActivity.push({date:d.date, location:loc, type:"Kit Inventory", result:d.result, status:status, inspector:d.inspector});
+    // Store expiring items from column 6 (index 6 = "Expiring Items")
+    if (kitHistory[loc][0] && kitHistory[loc][0].expiring) {
+      var expStr = kitHistory[loc][0].expiring;
+      if (expStr && expStr !== "None" && expStr !== "") {
+        allExpiringItems.push({location:loc, type:"Kit", raw:expStr, date:kitHistory[loc][0].date});
+      }
+    }
   });
 }
 
@@ -585,6 +629,7 @@ function updateSummaryCards() {
   } else {
     banner.classList.remove("show");
   }
+  renderExpiryPanel();
 }
 
 function renderActivity() {
@@ -613,6 +658,96 @@ function renderError(bodyId, label) {
 
 function renderNotConfigured(bodyId, label) {
   document.getElementById(bodyId).innerHTML = "<div class='empty-state'>"+label+" not configured</div>";
+}
+
+// EXPIRY PANEL
+function renderExpiryPanel() {
+  var panel = document.getElementById("expPanel");
+  var body  = document.getElementById("expBody");
+  body.innerHTML = "";
+
+  // Parse expiring items from kit inventory
+  // Format from sheet: "ItemName (exp YYYY-MM-DD); ItemName2 (exp YYYY-MM-DD)"
+  var items = [];
+  allExpiringItems.forEach(function(entry) {
+    // Try to parse individual items with dates
+    var parts = entry.raw.split(";");
+    parts.forEach(function(part) {
+      part = part.trim();
+      if (!part || part === "None") return;
+      // Try to extract date in format YYYY-MM-DD or similar
+      var dateMatch = part.match(/(\d{4}-\d{2}-\d{2})/);
+      var expDate = dateMatch ? dateMatch[1] : null;
+      var daysLeft = expDate ? Math.floor((new Date(expDate) - new Date()) / 86400000) : null;
+      // If no date found, still show the item
+      items.push({
+        location: entry.location,
+        itemName: part.replace(/\(exp[^)]*\)/i,"").replace(/\(EXPIRED\)/i,"").trim(),
+        expDate: expDate,
+        daysLeft: daysLeft,
+        status: daysLeft === null ? "soon" : daysLeft < 0 ? "expired" : daysLeft <= EXP_WARN_DAYS ? "soon" : null
+      });
+    });
+  });
+
+  // Filter to only show expired or expiring within 30 days
+  var filtered = items.filter(function(i){ return i.status !== null; });
+
+  // Sort: expired first, then by days left ascending
+  filtered.sort(function(a,b){
+    var da = a.daysLeft === null ? -9999 : a.daysLeft;
+    var db = b.daysLeft === null ? -9999 : b.daysLeft;
+    return da - db;
+  });
+
+  if (filtered.length === 0) {
+    panel.style.display = "none";
+    return;
+  }
+
+  panel.style.display = "block";
+
+  filtered.forEach(function(item) {
+    var row = document.createElement("div");
+    row.className = "exp-row " + item.status;
+
+    var dot = document.createElement("div");
+    dot.className = "exp-dot " + item.status;
+    row.appendChild(dot);
+
+    var info = document.createElement("div");
+    info.className = "exp-info";
+    var locEl = document.createElement("div"); locEl.className="exp-loc-name"; locEl.textContent=item.location; info.appendChild(locEl);
+    var itmEl = document.createElement("div"); itmEl.className="exp-item-name"; itmEl.textContent=item.itemName; info.appendChild(itmEl);
+    row.appendChild(info);
+
+    var dateCol = document.createElement("div");
+    dateCol.className = "exp-date-col";
+    var dateVal = document.createElement("div");
+    dateVal.className = "exp-date-val " + item.status;
+    dateVal.textContent = item.expDate ? formatDate(item.expDate) : "Check date";
+    dateCol.appendChild(dateVal);
+    var daysEl = document.createElement("div");
+    daysEl.className = "exp-days-left " + item.status;
+    if (item.daysLeft === null) daysEl.textContent = "Verify expiration";
+    else if (item.daysLeft < 0) daysEl.textContent = Math.abs(item.daysLeft) + " days EXPIRED";
+    else daysEl.textContent = item.daysLeft + " days remaining";
+    dateCol.appendChild(daysEl);
+    row.appendChild(dateCol);
+
+    body.appendChild(row);
+  });
+
+  // Add to alert banner if expired items exist
+  var expired = filtered.filter(function(i){ return i.status==="expired"; });
+  var banner = document.getElementById("alertBanner");
+  if (expired.length > 0 && !banner.classList.contains("show")) {
+    banner.style.background = "rgba(192,57,43,0.15)";
+    banner.style.borderColor = "var(--red)";
+    banner.style.color = "#e74c3c";
+    banner.textContent = expired.length + " expired item"+(expired.length>1?"s":"")+" found across kit locations. Immediate replacement required.";
+    banner.classList.add("show");
+  }
 }
 
 // HISTORY MODAL
