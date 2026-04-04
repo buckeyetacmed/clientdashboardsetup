@@ -517,7 +517,7 @@ function processKit(rows) {
   rows.forEach(function(r) {
     var loc = r[1] || "Unknown";
     if (!kitHistory[loc]) kitHistory[loc] = [];
-    kitHistory[loc].push({date:r[0]||"", inspector:r[2]||"", kitClass:r[3]||"", result:r[4]||"", failed:r[5]||"", expiring:r[6]||""});
+    kitHistory[loc].push({date:r[0]||"", inspector:r[2]||"", kitClass:r[3]||"", result:r[4]||"", failed:r[5]||"", expiring:r[7]||""});
   });
 
   // Sort each location by date desc
@@ -718,6 +718,15 @@ function updateSummaryCards() {
     banner.classList.remove("show");
   }
   renderExpiryPanel();
+  // Check if expiry panel found items and add to banner if needed
+  var expPanel = document.getElementById("expPanel");
+  if (expPanel && expPanel.style.display !== "none" && !banner.classList.contains("show")) {
+    banner.style.background = "rgba(183,119,13,0.15)";
+    banner.style.borderColor = "var(--amber2, #f0b429)";
+    banner.style.color = "var(--gold2, #f0b429)";
+    banner.textContent = "Items expiring within 30 days detected. See Expiring Items panel below.";
+    banner.classList.add("show");
+  }
 }
 
 function renderActivity() {
@@ -884,13 +893,28 @@ function openHistory(loc, type) {
       var insp = document.createElement("div");
       insp.className = "hist-inspector";
       insp.textContent = h.inspector || "";
-      if (h.result.toUpperCase()==="FAIL" && h.failed && h.failed !== "None") {
-        var detail = document.createElement("div");
-        detail.className = "hist-fail-detail";
-        detail.textContent = h.failed.substring(0,80) + (h.failed.length>80?"...":"");
-        insp.appendChild(detail);
-      }
       row.appendChild(insp);
+      if (h.result.toUpperCase()==="FAIL" && h.failed && h.failed !== "None") {
+        var failDiv = document.createElement("div");
+        failDiv.style.cssText = "padding:6px 20px 8px 20px;border-top:1px solid rgba(255,255,255,0.04);";
+        var failLabel = document.createElement("div");
+        failLabel.style.cssText = "font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;";
+        failLabel.textContent = "Failed Items:";
+        failDiv.appendChild(failLabel);
+        var failItems = h.failed.split(";");
+        failItems.forEach(function(fi2) {
+          fi2 = fi2.trim();
+          if (!fi2 || fi2==="None") return;
+          var frow = document.createElement("div");
+          frow.style.cssText = "display:flex;align-items:flex-start;gap:6px;margin-bottom:3px;font-size:11px;color:#e74c3c;";
+          var fdot = document.createElement("span"); fdot.textContent="&#8226;"; fdot.style.flexShrink="0"; frow.appendChild(fdot);
+          var ftxt = document.createElement("span"); ftxt.textContent=fi2; frow.appendChild(ftxt);
+          failDiv.appendChild(frow);
+        });
+        body.appendChild(row);
+        body.appendChild(failDiv);
+        return;
+      }
       body.appendChild(row);
     });
   }
