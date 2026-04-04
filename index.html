@@ -573,14 +573,14 @@ function processKit(rows) {
         if (!fi3 || fi3 === "None") return;
         var fline = document.createElement("div");
         fline.style.cssText = "display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#e74c3c;margin-bottom:4px;line-height:1.4;";
-        var fdot2 = document.createElement("span"); fdot2.textContent = "&#8226;"; fdot2.style.flexShrink = "0"; fline.appendChild(fdot2);
+        var fdot2 = document.createElement("span"); fdot2.innerHTML = "&bull;"; fdot2.style.flexShrink = "0"; fline.appendChild(fdot2);
         var ftxt2 = document.createElement("span"); ftxt2.textContent = fi3; fline.appendChild(ftxt2);
         expandRow.appendChild(fline);
       });
       // Also show history link
       var histLink = document.createElement("div");
       histLink.style.cssText = "margin-top:8px;font-size:10px;color:var(--gold);cursor:pointer;text-decoration:underline;";
-      histLink.textContent = "View full inspection history &#8594;";
+      histLink.innerHTML = "View full inspection history &rarr;";
       (function(l){ histLink.addEventListener("click", function(e){ e.stopPropagation(); openHistory(l, "kit"); }); })(loc);
       expandRow.appendChild(histLink);
 
@@ -726,7 +726,7 @@ function processAed(rows) {
           fi = fi.trim(); if (!fi||fi==="None") return;
           var fline = document.createElement("div");
           fline.style.cssText = "font-size:12px;color:#e74c3c;margin-bottom:3px;";
-          fline.textContent = "&#8226; " + fi;
+          fline.innerHTML = "&bull; " + fi;
           expandRow.appendChild(fline);
         });
       }
@@ -739,13 +739,13 @@ function processAed(rows) {
           mi = mi.trim(); if (!mi||mi==="None") return;
           var mline = document.createElement("div");
           mline.style.cssText = "font-size:12px;color:#e74c3c;margin-bottom:3px;";
-          mline.textContent = "&#8226; " + mi;
+          mline.innerHTML = "&bull; " + mi;
           expandRow.appendChild(mline);
         });
       }
       var histLink = document.createElement("div");
       histLink.style.cssText = "margin-top:8px;font-size:10px;color:var(--gold);cursor:pointer;text-decoration:underline;";
-      histLink.textContent = "View full inspection history &#8594;";
+      histLink.innerHTML = "View full inspection history &rarr;";
       (function(l){ histLink.addEventListener("click", function(e){ e.stopPropagation(); openHistory(l, "aed"); }); })(loc);
       expandRow.appendChild(histLink);
       var isOpen = false;
@@ -1017,7 +1017,7 @@ function renderExpiryPanel() {
       toggleRow.style.cssText = "padding:10px 18px;text-align:center;border-top:1px solid var(--border);";
       var toggleBtn = document.createElement("button");
       toggleBtn.style.cssText = "background:transparent;border:none;color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;";
-      toggleBtn.textContent = showAll ? "Show Less &#9650;" : "Show All " + filtered.length + " Items &#9660;";
+      toggleBtn.innerHTML = showAll ? "Show Less &#9650;" : "Show All " + filtered.length + " Items &#9660;";
       toggleBtn.addEventListener("click", function() {
         showAll = !showAll;
         renderRows();
@@ -1044,7 +1044,7 @@ function renderExpiryPanel() {
 function openHistory(loc, type) {
   var history = type === "kit" ? kitHistory[loc] : type === "aed" ? aedHistory[loc] : eyewashHistory[loc];
   document.getElementById("histTitle").textContent = loc;
-  document.getElementById("histSubtitle").textContent = type === "kit" ? "Kit Inventory History" : "Eyewash Inspection History";
+  document.getElementById("histSubtitle").textContent = type === "kit" ? "Kit Inventory History" : type === "aed" ? "AED Inspection History" : "Eyewash Inspection History";
   var body = document.getElementById("histBody");
   body.innerHTML = "";
   if (!history || history.length === 0) {
@@ -1078,7 +1078,7 @@ function openHistory(loc, type) {
           if (!fi2 || fi2==="None") return;
           var frow = document.createElement("div");
           frow.style.cssText = "display:flex;align-items:flex-start;gap:6px;margin-bottom:3px;font-size:11px;color:#e74c3c;";
-          var fdot = document.createElement("span"); fdot.textContent="&#8226;"; fdot.style.flexShrink="0"; frow.appendChild(fdot);
+          var fdot = document.createElement("span"); fdot.textContent="-"; fdot.style.flexShrink="0"; frow.appendChild(fdot);
           var ftxt = document.createElement("span"); ftxt.textContent=fi2; frow.appendChild(ftxt);
           failDiv.appendChild(frow);
         });
