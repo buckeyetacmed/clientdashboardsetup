@@ -225,12 +225,12 @@ body{background:var(--navy);color:var(--white);font-family:'Barlow',sans-serif;f
       </div>
     </div>
 
-    <div class="setup-card" style="border-color:rgba(212,160,23,0.15);">
-      <div class="setup-step-num">AED Checks (Future)</div>
-      <div class="setup-step-text" style="color:var(--muted);">AED inspection sheet can be added when ready. Leave blank for now.</div>
+    <div class="setup-card">
+      <div class="setup-step-num">Step 4 &mdash; AED Inspection Sheet URL</div>
+      <div class="setup-step-text">Publish your AED Inspection Log Sheet as CSV and paste the URL here.</div>
       <div class="url-input-row">
         <label>AED Inspection CSV URL (optional)</label>
-        <input type="text" id="setupAedUrl" placeholder="Leave blank until AED inspections are set up" />
+        <input type="text" id="setupAedUrl" placeholder="https://docs.google.com/spreadsheets/d/.../pub?...output=csv" />
       </div>
     </div>
 
@@ -323,11 +323,17 @@ body{background:var(--navy);color:var(--white);font-family:'Barlow',sans-serif;f
         </div>
       </div>
 
-      <!-- AED FUTURE -->
-      <div class="future-card">
-        <div class="future-icon">&#x2764;&#xFE0F;</div>
-        <div class="future-label">AED Inspections</div>
-        <div class="future-sub">Coming soon &mdash; connect AED inspection sheet to enable</div>
+      <!-- AED PANEL -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <div>
+            <div class="section-card-title">&#x2764; AED Inspections</div>
+            <div class="section-card-ref">Every 60 days</div>
+          </div>
+        </div>
+        <div class="section-card-body" id="aedBody">
+          <div class="loading-row"><span class="spin">&#x27F3;</span> Loading...</div>
+        </div>
       </div>
 
     </div>
@@ -450,6 +456,9 @@ function loadAllData() {
   if (config.eyewashUrl) { pending++; fetchSheet(config.eyewashUrl, function(rows){ processEyewash(rows); done(); }, function(){ renderError("eyewashBody","Eyewash"); done(); }); }
   else { renderNotConfigured("eyewashBody", "Eyewash Sheet"); }
 
+  if (config.aedUrl) { pending++; fetchSheet(config.aedUrl, function(rows){ processAed(rows); done(); }, function(){ renderError("aedBody","AED"); done(); }); }
+  else { renderNotConfigured("aedBody", "AED Inspection Sheet"); }
+
   if (pending === 0) { updateSummaryCards(); renderActivity(); document.getElementById("lastUpdated").textContent = "No sheets configured"; }
 }
 
@@ -508,6 +517,7 @@ function dotClass(status) {
 // Store history per location
 var kitHistory = {};
 var eyewashHistory = {};
+var aedHistory = {};
 var allExpiringItems = [];
 
 // Process Kit Inventory rows
@@ -634,6 +644,126 @@ function processEyewash(rows) {
     row.addEventListener("click", function(){ openHistory(loc, "eyewash"); });
     body.appendChild(row);
     allActivity.push({date:d.date, location:loc, type:"Eyewash Station", result:d.result, status:status, inspector:d.inspector});
+  });
+}
+
+function processAed(rows) {
+  aedHistory = {};
+  rows.forEach(function(r) {
+    var loc = r[1] || "Unknown";
+    if (!aedHistory[loc]) aedHistory[loc] = [];
+    aedHistory[loc].push({
+      date:r[0]||"", inspector:r[2]||"", model:r[3]||"",
+      serial:r[4]||"", result:r[5]||"", failed:r[6]||"",
+      missingRescue:r[7]||"", padExp:r[8]||"", batExp:r[9]||""
+    });
+  });
+
+  Object.keys(aedHistory).forEach(function(loc) {
+    aedHistory[loc].sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+  });
+
+  var body = document.getElementById("aedBody");
+  var keys = Object.keys(aedHistory);
+  if (keys.length === 0) { body.innerHTML = "<div class='empty-state'>No inspection data yet</div>"; return; }
+
+  body.innerHTML = "";
+  keys.forEach(function(loc) {
+    var d = aedHistory[loc][0];
+    var days = daysSince(d.date);
+    var status = getStatus(d.result, days);
+
+    // Also flag if pads or battery expired
+    if (d.padExp && d.padExp !== "Not entered") {
+      var padDays = Math.floor((new Date(d.padExp) - new Date()) / 86400000);
+      if (padDays < 0) status = "fail";
+    }
+    if (d.batExp && d.batExp !== "Not entered") {
+      var batDays = Math.floor((new Date(d.batExp) - new Date()) / 86400000);
+      if (batDays < 0) status = "fail";
+    }
+
+    var row = buildLocRow(loc, d.date, d.result, status, days, d.failed, "aed");
+
+    // Add model/serial subtitle
+    if (d.model || d.serial) {
+      var modelSub = document.createElement("div");
+      modelSub.style.cssText = "font-size:10px;color:var(--muted);margin-top:2px;";
+      modelSub.textContent = (d.model||"") + (d.serial?" | SN: "+d.serial:"");
+      row.querySelector(".loc-name").appendChild(modelSub);
+    }
+
+    // Expiry badges for pads and battery
+    if (d.padExp && d.padExp !== "Not entered") {
+      var padDays2 = Math.floor((new Date(d.padExp) - new Date()) / 86400000);
+      if (padDays2 <= 30) {
+        var padBadge = document.createElement("div");
+        padBadge.style.cssText = "font-size:10px;color:"+(padDays2<0?"#e74c3c":"var(--gold2)")+";margin-top:2px;";
+        padBadge.textContent = (padDays2<0?"PADS EXPIRED":"Pads exp in "+padDays2+"d");
+        row.querySelector(".loc-name").appendChild(padBadge);
+      }
+    }
+    if (d.batExp && d.batExp !== "Not entered") {
+      var batDays2 = Math.floor((new Date(d.batExp) - new Date()) / 86400000);
+      if (batDays2 <= 30) {
+        var batBadge = document.createElement("div");
+        batBadge.style.cssText = "font-size:10px;color:"+(batDays2<0?"#e74c3c":"var(--gold2)")+";margin-top:2px;";
+        batBadge.textContent = (batDays2<0?"BATTERY EXPIRED":"Battery exp in "+batDays2+"d");
+        row.querySelector(".loc-name").appendChild(batBadge);
+      }
+    }
+
+    // Inline expand for failed AEDs
+    if (status === "fail" && (d.failed && d.failed !== "None" || d.missingRescue && d.missingRescue !== "None")) {
+      var expandRow = document.createElement("div");
+      expandRow.style.cssText = "display:none;background:rgba(192,57,43,0.07);border-left:3px solid #e74c3c;padding:10px 18px 10px 28px;border-bottom:1px solid rgba(255,255,255,0.05);";
+      if (d.failed && d.failed !== "None") {
+        var fl = document.createElement("div");
+        fl.style.cssText = "font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;";
+        fl.textContent = "Failed Items:";
+        expandRow.appendChild(fl);
+        d.failed.split(";").forEach(function(fi) {
+          fi = fi.trim(); if (!fi||fi==="None") return;
+          var fline = document.createElement("div");
+          fline.style.cssText = "font-size:12px;color:#e74c3c;margin-bottom:3px;";
+          fline.textContent = "&#8226; " + fi;
+          expandRow.appendChild(fline);
+        });
+      }
+      if (d.missingRescue && d.missingRescue !== "None") {
+        var ml = document.createElement("div");
+        ml.style.cssText = "font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin:6px 0 4px;";
+        ml.textContent = "Missing Rescue Items:";
+        expandRow.appendChild(ml);
+        d.missingRescue.split(";").forEach(function(mi) {
+          mi = mi.trim(); if (!mi||mi==="None") return;
+          var mline = document.createElement("div");
+          mline.style.cssText = "font-size:12px;color:#e74c3c;margin-bottom:3px;";
+          mline.textContent = "&#8226; " + mi;
+          expandRow.appendChild(mline);
+        });
+      }
+      var histLink = document.createElement("div");
+      histLink.style.cssText = "margin-top:8px;font-size:10px;color:var(--gold);cursor:pointer;text-decoration:underline;";
+      histLink.textContent = "View full inspection history &#8594;";
+      (function(l){ histLink.addEventListener("click", function(e){ e.stopPropagation(); openHistory(l, "aed"); }); })(loc);
+      expandRow.appendChild(histLink);
+      var isOpen = false;
+      row.style.cursor = "pointer";
+      row.addEventListener("click", function(e) {
+        if (e.target.className === "alert-loc-btn") return;
+        isOpen = !isOpen;
+        expandRow.style.display = isOpen ? "block" : "none";
+      });
+      body.appendChild(row);
+      body.appendChild(expandRow);
+    } else {
+      row.style.cursor = "pointer";
+      row.addEventListener("click", function(){ openHistory(loc, "aed"); });
+      body.appendChild(row);
+    }
+
+    allActivity.push({date:d.date, location:loc, type:"AED Inspection", result:d.result, status:status, inspector:d.inspector});
   });
 }
 
@@ -912,7 +1042,7 @@ function renderExpiryPanel() {
 
 // HISTORY MODAL
 function openHistory(loc, type) {
-  var history = type === "kit" ? kitHistory[loc] : eyewashHistory[loc];
+  var history = type === "kit" ? kitHistory[loc] : type === "aed" ? aedHistory[loc] : eyewashHistory[loc];
   document.getElementById("histTitle").textContent = loc;
   document.getElementById("histSubtitle").textContent = type === "kit" ? "Kit Inventory History" : "Eyewash Inspection History";
   var body = document.getElementById("histBody");
