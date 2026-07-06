@@ -184,59 +184,6 @@ body{background:var(--navy);color:var(--white);font-family:'Barlow',sans-serif;f
   .pr-sig-lbl{font-size:8px;color:#888;text-transform:uppercase;letter-spacing:0.06em;}
   .pr-footer{background:#3D4A2E;padding:8px 32px;display:flex;justify-content:space-between;font-size:8px;color:#B8860B;text-transform:uppercase;letter-spacing:0.06em;margin-top:20px;}
 }
-
-/* Facility Map */
-.map-section{margin-bottom:24px;}
-.map-section-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--white);margin-bottom:12px;}
-.map-section-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.map-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0;}
-.map-tab{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:10px 20px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all 0.15s;background:transparent;border-top:none;border-left:none;border-right:none;}
-.map-tab:hover{color:var(--white);}
-.map-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
-.map-panel{display:none;position:relative;height:340px;background:var(--navy2);}
-.map-panel.active{display:block;}
-.map-panel iframe{width:100%;height:100%;border:none;display:block;}
-.map-pin-overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
-.map-pin{position:absolute;pointer-events:all;cursor:pointer;transform:translate(-50%,-50%);}
-.map-pin-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2.5px solid white;transition:transform 0.15s;}
-.map-pin:hover .map-pin-dot{transform:scale(1.2);}
-.map-pin-dot.kit{background:#e74c3c;box-shadow:0 0 0 6px rgba(231,76,60,0.2);}
-.map-pin-dot.ew{background:#4ab8d8;box-shadow:0 0 0 6px rgba(74,184,216,0.2);}
-.map-pin-dot.aed{background:#d4a017;box-shadow:0 0 0 6px rgba(212,160,23,0.2);}
-.map-pin-dot.overdue{box-shadow:0 0 0 8px rgba(212,160,23,0.35);}
-.map-pin-dot.fail{box-shadow:0 0 0 8px rgba(192,57,43,0.4);}
-.map-popup{display:none;position:absolute;top:12px;right:12px;width:220px;background:var(--navy2);border:1px solid var(--border);border-radius:10px;overflow:hidden;z-index:10;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
-.map-popup-bar{height:5px;}
-.map-popup-body{padding:12px 14px 8px;}
-.map-popup-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.04em;color:var(--white);margin-bottom:6px;}
-.map-popup-meta{font-size:11px;color:var(--muted);margin-bottom:3px;}
-.map-popup-status{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:3px 10px;border-radius:4px;margin-top:6px;}
-.map-popup-status.pass{background:rgba(30,125,69,0.2);color:#2ecc71;}
-.map-popup-status.fail{background:rgba(192,57,43,0.2);color:#e74c3c;}
-.map-popup-status.overdue{background:rgba(212,160,23,0.15);color:var(--gold2);}
-.map-popup-close{width:100%;margin:8px 0 12px;padding:6px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);cursor:pointer;}
-.map-popup-close:hover{color:var(--white);border-color:var(--gold);}
-.map-legend{display:flex;gap:16px;padding:10px 16px;border-top:1px solid var(--border);background:rgba(255,255,255,0.02);}
-.map-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
-.map-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.map-setup-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:6px 14px;border-radius:5px;cursor:pointer;transition:all 0.15s;}
-.map-setup-btn:hover{border-color:var(--gold);color:var(--gold);}
-.map-setup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:300;align-items:center;justify-content:center;}
-.map-setup-overlay.open{display:flex;}
-.map-setup-modal{background:var(--navy2);border:1px solid var(--border);border-radius:10px;width:90%;max-width:500px;padding:24px;max-height:80vh;overflow-y:auto;}
-.map-setup-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--white);margin-bottom:6px;}
-.map-setup-sub{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
-.pin-entry{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:14px;margin-bottom:10px;}
-.pin-entry-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
-.pin-entry-row:last-child{margin-bottom:0;}
-.pin-entry input,.pin-entry select{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;padding:8px 12px;outline:none;}
-.pin-entry input:focus,.pin-entry select:focus{border-color:var(--gold);}
-.pin-entry select option{background:var(--navy2);}
-.pin-remove-btn{background:transparent;border:1px solid rgba(192,57,43,0.4);color:#e74c3c;font-size:11px;padding:6px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-weight:600;}
-.map-add-pin-btn{width:100%;background:transparent;border:1.5px solid var(--gold);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px;border-radius:5px;cursor:pointer;margin:10px 0;}
-.map-save-btn{width:100%;background:var(--gold);color:var(--navy);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:12px;border-radius:6px;cursor:pointer;border:none;margin-top:6px;}
-.map-save-btn:hover{background:var(--gold2);}
-
 </style>
 </head>
 <body>
@@ -400,101 +347,6 @@ body{background:var(--navy);color:var(--white);font-family:'Barlow',sans-serif;f
       <div id="expBody"></div>
     </div>
 
-    <!-- FACILITY MAP -->
-    <div class="section-card map-section">
-      <div class="section-card-header">
-        <div>
-          <div class="section-card-title">&#x1F4CD; Facility Map</div>
-          <div class="section-card-ref">Click a pin to view inspection status</div>
-        </div>
-        <button class="map-setup-btn" onclick="openMapSetup()">&#x2699; Configure Pins</button>
-      </div>
-
-      <!-- Plant tabs -->
-      <div class="map-tabs">
-        <button class="map-tab active" onclick="switchPlant('faircrest',this)">Faircrest</button>
-        <button class="map-tab" onclick="switchPlant('gambrinus',this)">Gambrinus</button>
-        <button class="map-tab" onclick="switchPlant('harrison',this)">Harrison</button>
-      </div>
-
-      <!-- Faircrest map -->
-      <div class="map-panel active" id="map-faircrest">
-        <iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyA3iskJk8EOFYVoVpuVDu2EuzitovcERMY&q=4511+Faircrest+St+SW,+Canton,+OH+44706&zoom=18&maptype=satellite" loading="lazy" allowfullscreen></iframe>
-        <div class="map-pin-overlay" id="pins-faircrest"></div>
-        <div class="map-popup" id="popup-faircrest">
-          <div class="map-popup-bar" id="popup-bar-faircrest"></div>
-          <div class="map-popup-body">
-            <div class="map-popup-name" id="popup-name-faircrest"></div>
-            <div class="map-popup-meta" id="popup-date-faircrest"></div>
-            <div class="map-popup-meta" id="popup-insp-faircrest"></div>
-            <div class="map-popup-status" id="popup-status-faircrest"></div>
-          </div>
-          <div style="padding:0 14px;">
-            <button class="map-popup-close" onclick="closePopup('faircrest')">Close</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Gambrinus map -->
-      <div class="map-panel" id="map-gambrinus">
-        <iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyA3iskJk8EOFYVoVpuVDu2EuzitovcERMY&q=4748+Navarre+Road+SW,+Canton,+OH+44706&zoom=18&maptype=satellite" loading="lazy" allowfullscreen></iframe>
-        <div class="map-pin-overlay" id="pins-gambrinus"></div>
-        <div class="map-popup" id="popup-gambrinus">
-          <div class="map-popup-bar" id="popup-bar-gambrinus"></div>
-          <div class="map-popup-body">
-            <div class="map-popup-name" id="popup-name-gambrinus"></div>
-            <div class="map-popup-meta" id="popup-date-gambrinus"></div>
-            <div class="map-popup-meta" id="popup-insp-gambrinus"></div>
-            <div class="map-popup-status" id="popup-status-gambrinus"></div>
-          </div>
-          <div style="padding:0 14px;">
-            <button class="map-popup-close" onclick="closePopup('gambrinus')">Close</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Harrison map -->
-      <div class="map-panel" id="map-harrison">
-        <iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyA3iskJk8EOFYVoVpuVDu2EuzitovcERMY&q=1835+Dueber+Ave+SW,+Canton,+OH+44706&zoom=18&maptype=satellite" loading="lazy" allowfullscreen></iframe>
-        <div class="map-pin-overlay" id="pins-harrison"></div>
-        <div class="map-popup" id="popup-harrison">
-          <div class="map-popup-bar" id="popup-bar-harrison"></div>
-          <div class="map-popup-body">
-            <div class="map-popup-name" id="popup-name-harrison"></div>
-            <div class="map-popup-meta" id="popup-date-harrison"></div>
-            <div class="map-popup-meta" id="popup-insp-harrison"></div>
-            <div class="map-popup-status" id="popup-status-harrison"></div>
-          </div>
-          <div style="padding:0 14px;">
-            <button class="map-popup-close" onclick="closePopup('harrison')">Close</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Legend -->
-      <div class="map-legend">
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#e74c3c;"></div>First Aid Kit</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#4ab8d8;"></div>Eyewash Station</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#d4a017;"></div>AED</div>
-        <div class="map-legend-item" style="margin-left:auto;"><div class="map-legend-dot" style="background:#2ecc71;box-shadow:0 0 0 3px rgba(46,204,113,0.2);"></div>Pass</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#d4a017;box-shadow:0 0 0 3px rgba(212,160,23,0.2);"></div>Overdue</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#e74c3c;box-shadow:0 0 0 3px rgba(231,76,60,0.3);"></div>Failed</div>
-      </div>
-    </div>
-
-    <!-- MAP SETUP MODAL -->
-    <div class="map-setup-overlay" id="mapSetupOverlay" onclick="if(event.target===this)closeMapSetup()">
-      <div class="map-setup-modal">
-        <div class="map-setup-title">Configure Facility Pins</div>
-        <div class="map-setup-sub">Add each inspection station below. Select the plant, name the station, choose its type, and enter its position as a percentage from the top-left corner of the map (0-100). Save when done &#8212; the URL will update automatically.</div>
-
-        <div id="pinEntries"></div>
-        <button class="map-add-pin-btn" onclick="addPinEntry()">+ Add Station</button>
-        <button class="map-save-btn" onclick="saveMapPins()">Save &amp; Update Map</button>
-        <div id="mapSaveStatus" style="font-size:12px;color:var(--gold);text-align:center;margin-top:10px;display:none;">&#x2713; Pins saved! Copy the URL from your browser bar.</div>
-      </div>
-    </div>
-
     <!-- RECENT ACTIVITY -->
     <div class="section-card">
       <div class="section-card-header">
@@ -534,9 +386,9 @@ function saveSetup() {
   try {
     var params = new URLSearchParams();
     params.set("client", clientName);
-    if (kitUrl)     params.set("kit",     kitUrl);
-    if (eyewashUrl) params.set("ew",      eyewashUrl);
-    if (aedUrl)     params.set("aed",     aedUrl);
+    if (kitUrl)     params.set("kit",     encodeURIComponent(kitUrl));
+    if (eyewashUrl) params.set("ew",      encodeURIComponent(eyewashUrl));
+    if (aedUrl)     params.set("aed",     encodeURIComponent(aedUrl));
     window.history.replaceState({}, "", "?" + params.toString());
   } catch(e) {}
 
@@ -554,9 +406,9 @@ function loadFromUrl() {
   if (params.get("client")) {
     config = {
       clientName:  params.get("client") || "",
-      kitUrl:      params.get("kit")     || "",
-      eyewashUrl:  params.get("ew")      || "",
-      aedUrl:      params.get("aed")     || ""
+      kitUrl:      params.get("kit")    ? decodeURIComponent(params.get("kit"))    : "",
+      eyewashUrl:  params.get("ew")     ? decodeURIComponent(params.get("ew"))     : "",
+      aedUrl:      params.get("aed")    ? decodeURIComponent(params.get("aed"))    : ""
     };
     return true;
   }
@@ -566,8 +418,6 @@ function loadFromUrl() {
 }
 
 function launchDashboard() {
-  // Always save config to localStorage so refresh restores it
-  localStorage.setItem("btm_dash_config", JSON.stringify(config));
   document.getElementById("setupScreen").style.display = "none";
   document.getElementById("dashScreen").style.display = "block";
   document.getElementById("dashClientName").textContent = config.clientName;
@@ -594,7 +444,6 @@ function loadAllData() {
     if (pending <= 0) {
       updateSummaryCards();
       renderActivity();
-      updatePinStatuses();
       var now = new Date();
       document.getElementById("lastUpdated").textContent =
         "Last updated: " + now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
